@@ -40,8 +40,6 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
 			if ( subName.length() != 0 ) {
 				Player player = plugin.getServer().getPlayer( subName );
 				if ( player != null ) {
-					plugin.consoleMsg( Pattern
-							.quote( ((char) charPrefix + subName) ) );
 					msg = msg.replaceAll(
 							new StringBuilder( "[^a-zA-Z0-9_\\-" )
 									.append( charPrefix ).append( "]" )
