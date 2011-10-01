@@ -1,0 +1,5 @@
+=ChatAutoComplete=
+
+ChatAutoComplete is a bukkit plugin making it possible to auto-complete names in chat.
+
+For further information see the [[http://dev.bukkit.org/server-mods/chatautocomplete/|ChatAutoComplete BukkitDev page]]
