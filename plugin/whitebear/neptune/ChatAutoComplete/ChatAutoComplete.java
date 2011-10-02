@@ -66,14 +66,21 @@ public class ChatAutoComplete extends JavaPlugin
             Plugin essentialsBridge = pgnMng.getPlugin( "Permissions" );
             if( essentialsBridge != null && essentialsBridge.isEnabled() )
             {
-                essentialsProxy = (NijikoPermissionsProxy) ((Permissions) essentialsBridge).getHandler();
-                consoleMsg( "Using essentials" );
+                try
+                {
+                    essentialsProxy = (NijikoPermissionsProxy) ((Permissions) essentialsBridge).getHandler();
+                    consoleMsg( "Using essentials" );
+                }
+                catch(NoClassDefFoundError exception)
+                {
+                    essentialsProxy = null;
+                }
             }
         }
 
         playerListener = new ChatAutoCompletePlayerListener( this, chatPrefix, maxReplace, atSignColor, essentialsProxy );
 
-        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Normal, this );
+        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.High, this );
 
         consoleMsg( "Enabled." );
     }

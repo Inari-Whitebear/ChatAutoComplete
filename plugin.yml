@@ -1,7 +1,7 @@
 name: ChatAutoComplete
 description: Auto complete names if prefix @ is used in messages.
 author: Neptune Whitebear (Pinkishu @bukkit.org)
-version: 0.6.1 Beta
+version: 0.6.3 Beta
 main: plugin.whitebear.neptune.ChatAutoComplete.ChatAutoComplete
 softdepend: [Permissions]
 

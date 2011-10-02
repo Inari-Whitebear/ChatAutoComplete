@@ -19,6 +19,7 @@
 
 package plugin.whitebear.neptune.ChatAutoComplete;
 
+
 import java.util.regex.Pattern;
 
 import org.anjocaido.groupmanager.permissions.NijikoPermissionsProxy;
@@ -48,7 +49,14 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
         if( !sender.hasPermission( "autocomp.autocomp" ) ) return;
         // Escape if cancelled or doesn't have permissions
 
-        String msg = event.getMessage();
+        String msg = event.getFormat();
+        boolean useFormat = true;
+        if( msg.contains( (CharSequence)"%2$s" ) )
+        {
+            useFormat = false;
+            msg = event.getMessage();
+        }
+        
         int lastIndex = 0;
         int position = msg.indexOf( charPrefix, lastIndex );
         int safeLoop = maxReplace;
@@ -73,11 +81,14 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
                         prefix = essentialsProxy.getUserPrefix( player.getWorld().getName(), player.getName() );
                     }
                     // Replace all occurences with the complete name and color
+ 
                     msg = msg.replaceAll( "(^|\\s)" + Pattern.quote( (char) charPrefix + (subName) ) + "($|\\s)", "$1"
                             + (atSignColor == null ? "" : atSignColor.toString()) + ((char) charPrefix) + prefix
                             + player.getName() + ChatColor.WHITE.toString() + "$2" );
-
-                    event.setMessage( msg );
+                    if( useFormat )
+                        event.setFormat( msg );
+                    else
+                        event.setMessage( msg );
                     safeLoop--;
                 }
 
