@@ -64,7 +64,7 @@ public class ChatAutoComplete extends JavaPlugin
         if( useEssentials )
         {
             Plugin essentialsBridge = pgnMng.getPlugin( "Permissions" );
-            if( essentialsBridge != null )
+            if( essentialsBridge != null && essentialsBridge.isEnabled() )
             {
                 essentialsProxy = (NijikoPermissionsProxy) ((Permissions) essentialsBridge).getHandler();
                 consoleMsg( "Using essentials" );
