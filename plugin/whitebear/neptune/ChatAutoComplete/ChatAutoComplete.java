@@ -36,14 +36,13 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class ChatAutoComplete extends JavaPlugin
 {
 
-    @Override
+
     public void onDisable()
     {
         consoleMsg( "Disabled." );
 
     }
 
-    @Override
     public void onEnable()
     {
 
@@ -68,19 +67,25 @@ public class ChatAutoComplete extends JavaPlugin
             {
                 try
                 {
-                    essentialsProxy = (NijikoPermissionsProxy) ((Permissions) essentialsBridge).getHandler();
+                    essentialsProxy = ( NijikoPermissionsProxy ) ( ( Permissions ) essentialsBridge ).getHandler();
                     consoleMsg( "Using essentials" );
-                }
-                catch(NoClassDefFoundError exception)
+                } catch( NoClassDefFoundError exception )
                 {
                     essentialsProxy = null;
                 }
             }
         }
 
-        playerListener = new ChatAutoCompletePlayerListener( this, chatPrefix, maxReplace, atSignColor, essentialsProxy );
+        if( useSpout )
+        {
+            Plugin spout = pgnMng.getPlugin( "Spout" );
+            if( spout == null ) useSpout = false;
+            else consoleMsg( "Using spout." );
+        }
 
-        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.High, this );
+        playerListener = new ChatAutoCompletePlayerListener( this, chatPrefix, maxReplace, atSignColor, essentialsProxy, useSpout, spoutSound, useNotification );
+
+        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Highest, this );
 
         consoleMsg( "Enabled." );
     }
@@ -96,22 +101,24 @@ public class ChatAutoComplete extends JavaPlugin
         maxReplace = config.getInt( "maxReplace", 10 );
         atSignColor = config.getString( "atSignColor" );
         useEssentials = config.getBoolean( "useEssentials", false );
+        useSpout = config.getBoolean( "useSpout", false );
+        spoutSound = config.getString( "spoutSound", "NONE" );
+        useNotification = config.getBoolean( "useNotification", false );
 
     }
 
     private void setDefaults( Configuration config )
     {
         Map<String, Object> nodeMap = config.getAll();
-        config.setHeader( "#ChatAutoComplete Config",
-                "#chatPrefix = prefix to use before names so they get auto-completed",
-                "#maxReplace = maximum unique names replaced in a single chat message",
-                "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable."
-                        + "#useEssentials = using essentials for name prefixing" );
+        config.setHeader( "#ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum unique names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable." + "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none" );
 
         if( !nodeMap.containsKey( "chatPrefix" ) ) config.setProperty( "chatPrefix", "@" );
         if( !nodeMap.containsKey( "maxReplace" ) ) config.setProperty( "maxReplace", 10 );
         if( !nodeMap.containsKey( "atSignColor" ) ) config.setProperty( "atSignColor", "4" );
         if( !nodeMap.containsKey( "useEssentials" ) ) config.setProperty( "useEssentials", false );
+        if( !nodeMap.containsKey( "useSpout" ) ) config.setProperty( "useSpout", false );
+        if( !nodeMap.containsKey( "spoutSound" ) ) config.setProperty( "spoutSound", "NONE" );
+        if( !nodeMap.containsKey( "useNotification" ) ) config.setProperty( "useNotification", false );
     }
 
     public void consoleMsg( String msg )
@@ -126,12 +133,15 @@ public class ChatAutoComplete extends JavaPlugin
     }
 
     ChatAutoCompletePlayerListener playerListener;
-    String                         prefix          = "";
-    Logger                         mcLogger;
-    int                            maxReplace;
-    int                            chatPrefix;
-    String                         atSignColor;
-    NijikoPermissionsProxy         essentialsProxy = null;
-    boolean                        useEssentials;
+    String prefix = "";
+    Logger mcLogger;
+    int maxReplace;
+    int chatPrefix;
+    String atSignColor;
+    NijikoPermissionsProxy essentialsProxy = null;
+    boolean useEssentials;
+    boolean useSpout;
+    String spoutSound;
+    boolean useNotification;
 
 }
