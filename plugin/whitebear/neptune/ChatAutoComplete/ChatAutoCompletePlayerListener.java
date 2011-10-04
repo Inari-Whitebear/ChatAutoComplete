@@ -35,18 +35,17 @@ import org.getspout.spoutapi.sound.SoundManager;
 public class ChatAutoCompletePlayerListener extends PlayerListener
 {
 
-    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, int cCharPrefix, int cMaxReplace, String cColor, NijikoPermissionsProxy cEssentialsProxy, boolean cUseSpout, String cSpoutSound, boolean cUseNotification )
+    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, ChatAutoCompleteConfig config, NijikoPermissionsProxy cEssentialsProxy, boolean cUseSpout )
     {
         plugin = cPlugin;
-        charPrefix = cCharPrefix;
-        maxReplace = cMaxReplace;
+        charPrefix = config.getChatPrefix().charAt( 0 );
+        maxReplace = config.getMaxReplace();
         // Convert color code to ChatColor
-        atSignColor = ChatColor.getByCode( Integer.parseInt( cColor, 16 ) );
+        atSignColor = ChatColor.getByCode( Integer.parseInt( config.getAtSignColor(), 16 ) );
         essentialsProxy = cEssentialsProxy;
         useSpout = cUseSpout;
-        spoutSound = cSpoutSound;
-        useNotification = cUseNotification;
-        plugin.consoleMsg( "#"+spoutSound+"#" );
+        spoutSound = config.getSpoutSound();
+        useNotification = config.getUseNotification();
     }
 
     public void onPlayerChat( PlayerChatEvent event )
@@ -78,46 +77,8 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
 
             if( subName.length() != 0 )
             {
-
-                Player player = plugin.getServer().getPlayer( subName );
-
-                if( player != null )
-                {
-                    String prefix = ChatColor.WHITE.toString();
-                    if( essentialsProxy != null )
-                    {
-                        prefix = essentialsProxy.getUserPrefix( player.getWorld().getName(), player.getName() );
-                    }
-                    // Replace all occurences with the complete name and color
-
-                    msg = msg.replaceAll( "(^|\\s)" + Pattern.quote( ( char ) charPrefix + ( subName ) ) + "($|\\s)", "$1" + ( atSignColor == null ? "" : atSignColor
-                            .toString() ) + ( ( char ) charPrefix ) + prefix + player.getName() + ChatColor.WHITE
-                            .toString() + "$2" );
-
-                    if( useFormat ) event.setFormat( msg );
-
-                    if( useSpout )
-                    {
-                        SpoutPlayer spoutPlayer = SpoutManager.getPlayer( player );
-                        if( spoutPlayer != null )
-                        {
-                            if( spoutSound != "NONE" )
-                            {
-                                SoundManager soundMng = SpoutManager.getSoundManager();
-                                SoundEffect eff = SoundEffect.getSoundEffectFromName( spoutSound );
-                                if( eff != null )
-                                    soundMng.playSoundEffect( spoutPlayer, SoundEffect.getSoundEffectFromName( spoutSound ), player.getLocation(), 20, 60 );
-                                else plugin.consoleMsg( "NULL" );
-                            }
-                            if( useNotification )
-                            {
-
-                                spoutPlayer.sendNotification( "Highlight", "You've been highlighted!", Material.DIAMOND_BLOCK );
-                            }
-                        }
-                    } else event.setMessage( msg );
-                    safeLoop--;
-                }
+                replaceName( subName, msg, useFormat, event );
+                safeLoop--;
 
             }
             // Skip @ and first letter so the same one isn't found again
@@ -127,6 +88,56 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
             position = msg.indexOf( charPrefix, lastIndex );
         }
 
+    }
+
+    void replaceName( String subName, String msg, boolean useFormat, PlayerChatEvent event )
+    {
+        Player player = plugin.getServer().getPlayer( subName );
+
+        if( player != null )
+        {
+            String prefix = ChatColor.WHITE.toString();
+            if( essentialsProxy != null )
+            {
+                prefix = essentialsProxy.getUserPrefix( player.getWorld().getName(), player.getName() );
+            }
+            // Replace all occurences with the complete name and color
+
+            msg = msg.replaceAll( "(^|\\s)" + Pattern.quote( ( char ) charPrefix + ( subName ) ) + "($|\\s)", "$1" + ( atSignColor == null ? "" : atSignColor
+                    .toString() ) + ( ( char ) charPrefix ) + prefix + player.getName() + ChatColor.WHITE
+                    .toString() + "$2" );
+
+            if( useFormat ) event.setFormat( msg );
+            else event.setMessage( msg );
+
+            if( useSpout )
+            {
+                spoutNotifyPlayer( player );
+            }
+
+        }
+    }
+
+    void spoutNotifyPlayer( Player player )
+    {
+        SpoutPlayer spoutPlayer = SpoutManager.getPlayer( player );
+        if( spoutPlayer != null )
+        {
+            if( spoutSound != "NONE" )
+            {
+                SoundManager soundMng = SpoutManager.getSoundManager();
+                SoundEffect eff = SoundEffect.getSoundEffectFromName( spoutSound );
+                if( eff != null )
+                    soundMng.playSoundEffect( spoutPlayer, SoundEffect.getSoundEffectFromName( "random." + spoutSound ), player
+                            .getLocation(), 20, 60 );
+                else plugin.consoleMsg( "NULL" );
+            }
+            if( useNotification )
+            {
+
+                spoutPlayer.sendNotification( "Highlight", "You've been highlighted!", Material.DIAMOND_BLOCK );
+            }
+        }
     }
 
     ChatAutoComplete plugin;

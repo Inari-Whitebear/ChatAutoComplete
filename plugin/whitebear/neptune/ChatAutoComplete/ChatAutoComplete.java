@@ -49,9 +49,10 @@ public class ChatAutoComplete extends JavaPlugin
         PluginDescriptionFile pluginDesc = getDescription();
         prefix = "[" + pluginDesc.getName() + " (" + pluginDesc.getVersion() + ")] ";
         mcLogger = Logger.getLogger( "Minecraft" );
-        readConfig();
+        config = new ChatAutoCompleteConfig( this );
+        config.loadConfig();
 
-        if( maxReplace <= 0 )
+        if( config.getMaxReplace() <= 0 )
         {
             consoleMsg( "Can't replace // Max Relace Amount is set to 0 or lower." );
             super.getPluginLoader().disablePlugin( this );
@@ -60,7 +61,7 @@ public class ChatAutoComplete extends JavaPlugin
 
         PluginManager pgnMng = this.getServer().getPluginManager();
 
-        if( useEssentials )
+        if( config.getUseEssentials() )
         {
             Plugin essentialsBridge = pgnMng.getPlugin( "Permissions" );
             if( essentialsBridge != null && essentialsBridge.isEnabled() )
@@ -76,50 +77,20 @@ public class ChatAutoComplete extends JavaPlugin
             }
         }
 
-        if( useSpout )
+        if( config.getUseSpout() )
         {
             Plugin spout = pgnMng.getPlugin( "Spout" );
             if( spout == null ) useSpout = false;
             else consoleMsg( "Using spout." );
         }
 
-        playerListener = new ChatAutoCompletePlayerListener( this, chatPrefix, maxReplace, atSignColor, essentialsProxy, useSpout, spoutSound, useNotification );
+        playerListener = new ChatAutoCompletePlayerListener( this, config, essentialsProxy, useSpout );
 
         pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Highest, this );
 
         consoleMsg( "Enabled." );
     }
 
-    private void readConfig()
-    {
-        Configuration config = this.getConfiguration();
-        config.load();
-        setDefaults( config );
-        config.save();
-
-        chatPrefix = config.getString( "chatPrefix" ).trim().charAt( 0 );
-        maxReplace = config.getInt( "maxReplace", 10 );
-        atSignColor = config.getString( "atSignColor" );
-        useEssentials = config.getBoolean( "useEssentials", false );
-        useSpout = config.getBoolean( "useSpout", false );
-        spoutSound = config.getString( "spoutSound", "NONE" );
-        useNotification = config.getBoolean( "useNotification", false );
-
-    }
-
-    private void setDefaults( Configuration config )
-    {
-        Map<String, Object> nodeMap = config.getAll();
-        config.setHeader( "#ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum unique names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable." + "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none" );
-
-        if( !nodeMap.containsKey( "chatPrefix" ) ) config.setProperty( "chatPrefix", "@" );
-        if( !nodeMap.containsKey( "maxReplace" ) ) config.setProperty( "maxReplace", 10 );
-        if( !nodeMap.containsKey( "atSignColor" ) ) config.setProperty( "atSignColor", "4" );
-        if( !nodeMap.containsKey( "useEssentials" ) ) config.setProperty( "useEssentials", false );
-        if( !nodeMap.containsKey( "useSpout" ) ) config.setProperty( "useSpout", false );
-        if( !nodeMap.containsKey( "spoutSound" ) ) config.setProperty( "spoutSound", "NONE" );
-        if( !nodeMap.containsKey( "useNotification" ) ) config.setProperty( "useNotification", false );
-    }
 
     public void consoleMsg( String msg )
     {
@@ -132,16 +103,23 @@ public class ChatAutoComplete extends JavaPlugin
 
     }
 
-    ChatAutoCompletePlayerListener playerListener;
+    public ChatAutoCompleteConfig getConfig()
+    {
+        return config;
+    }
+
     String prefix = "";
     Logger mcLogger;
-    int maxReplace;
-    int chatPrefix;
-    String atSignColor;
+    boolean useEssentials = false;
+    boolean useSpout = false;
+
+    ChatAutoCompletePlayerListener playerListener;
+    ChatAutoCompleteConfig config;
+
     NijikoPermissionsProxy essentialsProxy = null;
-    boolean useEssentials;
-    boolean useSpout;
-    String spoutSound;
-    boolean useNotification;
+
+
+
+
 
 }
