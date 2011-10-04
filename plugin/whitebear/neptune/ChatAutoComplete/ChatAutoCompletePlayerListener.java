@@ -21,6 +21,8 @@ package plugin.whitebear.neptune.ChatAutoComplete;
 
 import java.util.regex.Pattern;
 
+import com.earth2me.essentials.perm.PermissionsHandler;
+import com.nijiko.permissions.PermissionHandler;
 import org.anjocaido.groupmanager.permissions.NijikoPermissionsProxy;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -32,17 +34,17 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 import org.getspout.spoutapi.sound.SoundEffect;
 import org.getspout.spoutapi.sound.SoundManager;
 
-public class ChatAutoCompletePlayerListener extends PlayerListener
+class ChatAutoCompletePlayerListener extends PlayerListener
 {
 
-    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, ChatAutoCompleteConfig config, NijikoPermissionsProxy cEssentialsProxy, boolean cUseSpout )
+    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, ChatAutoCompleteConfig config, PermissionHandler cPermHandler, boolean cUseSpout )
     {
         plugin = cPlugin;
         charPrefix = config.getChatPrefix().charAt( 0 );
         maxReplace = config.getMaxReplace();
         // Convert color code to ChatColor
         atSignColor = ChatColor.getByCode( Integer.parseInt( config.getAtSignColor(), 16 ) );
-        essentialsProxy = cEssentialsProxy;
+        permHandler = cPermHandler;
         useSpout = cUseSpout;
         spoutSound = config.getSpoutSound();
         useNotification = config.getUseNotification();
@@ -53,12 +55,16 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
 
         if( event.isCancelled() ) return;
         Player sender = event.getPlayer();
-        if( !sender.hasPermission( "autocomp.autocomp" ) ) return;
+        if( permHandler != null )
+        {
+             if( !permHandler.has( sender, "autocomp.autocomp" ) ) return;
+        }
+        else if( !sender.hasPermission( "autocomp.autocomp" ) ) return;
         // Escape if cancelled or doesn't have permissions
 
         String msg = event.getFormat();
         boolean useFormat = true;
-        if( msg.contains( ( CharSequence ) "%2$s" ) )
+        if( msg.contains( "%2$s" ) )
         {
             useFormat = false;
             msg = event.getMessage();
@@ -97,11 +103,11 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
         if( player != null )
         {
             String prefix = ChatColor.WHITE.toString();
-            if( essentialsProxy != null )
+            if( permHandler != null )
             {
-                prefix = essentialsProxy.getUserPrefix( player.getWorld().getName(), player.getName() );
+                prefix = permHandler.getUserPrefix( player.getWorld().getName(), player.getName() );
             }
-            // Replace all occurences with the complete name and color
+            // Replace all occurrences with the complete name and color
 
             msg = msg.replaceAll( "(^|\\s)" + Pattern.quote( ( char ) charPrefix + ( subName ) ) + "($|\\s)", "$1" + ( atSignColor == null ? "" : atSignColor
                     .toString() ) + ( ( char ) charPrefix ) + prefix + player.getName() + ChatColor.WHITE
@@ -112,6 +118,7 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
 
             if( useSpout )
             {
+                plugin.consoleMsg( "Using spout notification", true );
                 spoutNotifyPlayer( player );
             }
 
@@ -123,14 +130,14 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
         SpoutPlayer spoutPlayer = SpoutManager.getPlayer( player );
         if( spoutPlayer != null )
         {
-            if( spoutSound != "NONE" )
+            if( !spoutSound.endsWith( "NONE" ) )
             {
                 SoundManager soundMng = SpoutManager.getSoundManager();
-                SoundEffect eff = SoundEffect.getSoundEffectFromName( spoutSound );
+                SoundEffect eff = SoundEffect.getSoundEffectFromName( "random." + spoutSound );
                 if( eff != null )
-                    soundMng.playSoundEffect( spoutPlayer, SoundEffect.getSoundEffectFromName( "random." + spoutSound ), player
+                    soundMng.playSoundEffect( spoutPlayer, eff, player
                             .getLocation(), 20, 60 );
-                else plugin.consoleMsg( "NULL" );
+                else plugin.consoleMsg( "Sound does not exist => SoundEff == NULL", true );
             }
             if( useNotification )
             {
@@ -140,12 +147,12 @@ public class ChatAutoCompletePlayerListener extends PlayerListener
         }
     }
 
-    ChatAutoComplete plugin;
-    int charPrefix;
-    int maxReplace;
-    ChatColor atSignColor;
-    NijikoPermissionsProxy essentialsProxy;
-    boolean useSpout;
-    String spoutSound;
-    boolean useNotification;
+    private final ChatAutoComplete plugin;
+    private final int charPrefix;
+    private final int maxReplace;
+    private final ChatColor atSignColor;
+    private final PermissionHandler permHandler;
+    private final boolean useSpout;
+    private final String spoutSound;
+    private final boolean useNotification;
 }

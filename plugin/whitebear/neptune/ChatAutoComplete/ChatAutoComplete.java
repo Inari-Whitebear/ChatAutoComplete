@@ -22,6 +22,7 @@ package plugin.whitebear.neptune.ChatAutoComplete;
 import java.util.Map;
 import java.util.logging.Logger;
 
+
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.Plugin;
@@ -29,9 +30,10 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
-import org.anjocaido.groupmanager.permissions.NijikoPermissionsProxy;
+import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.nijiko.permissions.PermissionHandler;
 
 public class ChatAutoComplete extends JavaPlugin
 {
@@ -52,9 +54,16 @@ public class ChatAutoComplete extends JavaPlugin
         config = new ChatAutoCompleteConfig( this );
         config.loadConfig();
 
+        if( config.getDebug() )
+        {
+            debug = true;
+            consoleMsg( "Using Debug Mode" );
+        }
+
+
         if( config.getMaxReplace() <= 0 )
         {
-            consoleMsg( "Can't replace // Max Relace Amount is set to 0 or lower." );
+            consoleMsg( "Can't replace // Max Replace Amount is set to 0 or lower." );
             super.getPluginLoader().disablePlugin( this );
             return;
         }
@@ -68,39 +77,51 @@ public class ChatAutoComplete extends JavaPlugin
             {
                 try
                 {
-                    essentialsProxy = ( NijikoPermissionsProxy ) ( ( Permissions ) essentialsBridge ).getHandler();
-                    consoleMsg( "Using essentials" );
+                    permHandler = ( ( Permissions ) essentialsBridge ).getHandler();
+                    consoleMsg( "Using Essentials/PermissionsPrefix" );
                 } catch( NoClassDefFoundError exception )
                 {
-                    essentialsProxy = null;
+                    permHandler = null;
                 }
             }
         }
 
-        if( config.getUseSpout() )
+        useSpout = config.getUseSpout();
+
+        if( config.getUseSpout() && useSpout && pgnMng.getPlugin( "Spout" ) != null )
         {
-            Plugin spout = pgnMng.getPlugin( "Spout" );
-            if( spout == null ) useSpout = false;
-            else consoleMsg( "Using spout." );
+            enableSpout();
+
         }
 
-        playerListener = new ChatAutoCompletePlayerListener( this, config, essentialsProxy, useSpout );
+        playerListener = new ChatAutoCompletePlayerListener( this, config, permHandler, useSpout );
 
-        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Highest, this );
+        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Low, this );
 
         consoleMsg( "Enabled." );
     }
 
 
-    public void consoleMsg( String msg )
+    void consoleMsg( String msg )
     {
-        mcLogger.info( prefix + msg );
+        consoleMsg( msg, false );
+
 
     }
 
-    public ChatAutoComplete()
+    void enableSpout()
     {
+        useSpout = true;
+        consoleMsg( "Using Spout: " + this.getServer()
+                                          .getPluginManager()
+                                          .getPlugin( "Spout" )
+                                          .getDescription()
+                                          .getFullName() );
+    }
 
+    public void consoleMsg( String msg, boolean ifDebug )
+    {
+        if( ( ifDebug && debug ) || !ifDebug ) mcLogger.info( prefix + msg );
     }
 
     public ChatAutoCompleteConfig getConfig()
@@ -108,18 +129,15 @@ public class ChatAutoComplete extends JavaPlugin
         return config;
     }
 
-    String prefix = "";
-    Logger mcLogger;
-    boolean useEssentials = false;
-    boolean useSpout = false;
+    private String prefix = "";
+    private Logger mcLogger;
+    private boolean useSpout = false;
+    private boolean debug = false;
 
-    ChatAutoCompletePlayerListener playerListener;
-    ChatAutoCompleteConfig config;
+    private ChatAutoCompletePlayerListener playerListener;
+    private ChatAutoCompleteConfig config;
 
-    NijikoPermissionsProxy essentialsProxy = null;
-
-
-
+    private PermissionHandler permHandler = null;
 
 
 }

@@ -51,6 +51,7 @@ public class ChatAutoCompleteConfig
         Map<String, Object> nodeMap = config.getAll();
         config.setHeader( "#ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum unique names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable." + "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none" );
 
+        if( !nodeMap.containsKey( "debug" ) ) config.setProperty( "debug", false );
         if( !nodeMap.containsKey( "chatPrefix" ) ) config.setProperty( "chatPrefix", "@" );
         if( !nodeMap.containsKey( "maxReplace" ) ) config.setProperty( "maxReplace", 10 );
         if( !nodeMap.containsKey( "atSignColor" ) ) config.setProperty( "atSignColor", "4" );
@@ -95,7 +96,12 @@ public class ChatAutoCompleteConfig
         return config.getBoolean( "useNotification", false );
     }
 
-    ChatAutoComplete plugin;
-    Configuration config;
+    public boolean getDebug()
+    {
+        return config.getBoolean( "debug", false );
+    }
+
+    private final ChatAutoComplete plugin;
+    private final Configuration config;
 
 }
