@@ -17,11 +17,10 @@
  */
 
 
-package plugin.whitebear.neptune.ChatAutoComplete;
+package de.neptune_whitebear.ChatAutoComplete;
 
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 
 import com.nijiko.permissions.PermissionHandler;
@@ -69,10 +68,10 @@ class ChatAutoCompletePlayerListener extends PlayerListener
         //Escape if msg doesn't contain the prefix
         if( msg.indexOf( charPrefix ) == -1 ) return;
 
-        ArrayList<String> msgSplit = new ArrayList<String>();
-        Collections.addAll( msgSplit, msg.split( "\\s" ) );
-        HashMap<String, Player> playerMap = new HashMap<String, Player>();
-        HashMap<String, String> nameMap = new HashMap<String, String>();
+
+        String[] msgSplit = msg.split( "\\s" );
+        Map<String, Player> playerMap = new HashMap<String, Player>();
+        Map<String, String> nameMap = new HashMap<String, String>();
         int safeLoop = maxReplace;
 
         StringBuilder builder = new StringBuilder();
@@ -109,8 +108,15 @@ class ChatAutoCompletePlayerListener extends PlayerListener
                 }
                 if( playerMap.containsKey( subName ) || ( nameMap.containsKey( subName ) && nameMap.get( subName ) != null ) )
                 {
+                    String prefix = getPrefix( playerMap.get( subName ) );
 
-                    builder.append( builder.length() == 0 ? "" : " " ).append( ( char ) charPrefix ).append( subName );
+                    builder.append( builder.length() == 0 ? "" : " " )
+                           .append( ( atSignColor == null ) ? "" : atSignColor )
+                           .append( ( char ) charPrefix )
+                           .append( ChatColor.WHITE )
+                           .append( prefix )
+                           .append( subName )
+                           .append( ChatColor.WHITE );
 
                 } else
                 {
@@ -131,6 +137,12 @@ class ChatAutoCompletePlayerListener extends PlayerListener
 
         if( spoutListener != null ) spoutListener.passEvent( event, new HashSet<Player>( playerMap.values() ) );
 
+    }
+
+    String getPrefix( Player player )
+    {
+        if( permHandler != null ) return permHandler.getUserPrefix( player.getWorld().getName(), player.getName() );
+        return "";
     }
 
     private final ChatAutoComplete plugin;

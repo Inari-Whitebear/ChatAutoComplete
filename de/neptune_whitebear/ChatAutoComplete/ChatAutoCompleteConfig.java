@@ -17,11 +17,10 @@
  *
  */
 
-package plugin.whitebear.neptune.ChatAutoComplete;
+package de.neptune_whitebear.ChatAutoComplete;
 
 
 import org.bukkit.util.config.Configuration;
-import org.getspout.spoutapi.material.Material;
 
 import java.util.Map;
 
@@ -30,7 +29,6 @@ public class ChatAutoCompleteConfig
 
     public ChatAutoCompleteConfig( ChatAutoComplete instance )
     {
-        plugin = instance;
         config = instance.getConfiguration();
     }
 
@@ -50,7 +48,7 @@ public class ChatAutoCompleteConfig
     private void setDefaults()
     {
         Map<String, Object> nodeMap = config.getAll();
-        config.setHeader( "#ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum unique names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable." + "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none", "#spoutUseNotification = using notification? true/false", "#spoutNotificationTitle = Title used for notification", "#spoutNotificationMessage = Message sent to player on notification", "#spoutNotificationMaterial = Material Symbol used for Notification message" );
+        config.setHeader( "#de.neptune_whitebear.ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum unique names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable." + "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none", "#spoutUseNotification = using notification? true/false", "#spoutNotificationTitle = Title used for notification", "#spoutNotificationMessage = Message sent to player on notification", "#spoutNotificationMaterial = Material Symbol used for Notification message" );
 
         if( !nodeMap.containsKey( "debug" ) ) config.setProperty( "debug", false );
         if( !nodeMap.containsKey( "chatPrefix" ) ) config.setProperty( "chatPrefix", "@" );
@@ -123,7 +121,6 @@ public class ChatAutoCompleteConfig
         return config.getString( "spoutNotificationMaterial", org.bukkit.Material.DIAMOND.toString() );
     }
 
-    private final ChatAutoComplete plugin;
     private final Configuration config;
 
 }

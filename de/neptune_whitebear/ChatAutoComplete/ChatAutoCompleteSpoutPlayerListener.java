@@ -17,7 +17,7 @@
  */
 
 
-package plugin.whitebear.neptune.ChatAutoComplete;
+package de.neptune_whitebear.ChatAutoComplete;
 
 
 import org.bukkit.Material;
@@ -29,7 +29,8 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 import org.getspout.spoutapi.sound.SoundEffect;
 import org.getspout.spoutapi.sound.SoundManager;
 
-import java.util.HashSet;
+
+import java.util.Set;
 
 class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
 {
@@ -102,7 +103,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
         }
     }
 
-    public void passEvent( PlayerChatEvent event, HashSet<Player> notifyPlayers )
+    public void passEvent( PlayerChatEvent event, Set<Player> notifyPlayers )
     {
         if( !useSpout ) return;
         lastEvent = event;
@@ -111,7 +112,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
 
     private final ChatAutoComplete plugin;
     private PlayerChatEvent lastEvent;
-    private HashSet<Player> lastPlayers;
+    private Set<Player> lastPlayers;
 
     private final boolean useSpout;
     private final String spoutSound;
