@@ -48,12 +48,13 @@ public class ChatAutoCompleteConfig
     private void setDefaults()
     {
         Map<String, Object> nodeMap = config.getAll();
-        config.setHeader( "#de.neptune_whitebear.ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum unique names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable." + "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none", "#spoutUseNotification = using notification? true/false", "#spoutNotificationTitle = Title used for notification", "#spoutNotificationMessage = Message sent to player on notification", "#spoutNotificationMaterial = Material Symbol used for Notification message" );
+        config.setHeader( "#de.neptune_whitebear.ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum prefixed names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable.", "#nickColor = Coloring for nicks if not using Essentials; use '-1' (in quotes) to disable.", "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none", "#spoutUseNotification = using notification? true/false", "#spoutNotificationTitle = Title used for notification", "#spoutNotificationMessage = Message sent to player on notification", "#spoutNotificationMaterial = Material Symbol used for Notification message" );
 
         if( !nodeMap.containsKey( "debug" ) ) config.setProperty( "debug", false );
         if( !nodeMap.containsKey( "chatPrefix" ) ) config.setProperty( "chatPrefix", "@" );
         if( !nodeMap.containsKey( "maxReplace" ) ) config.setProperty( "maxReplace", 10 );
         if( !nodeMap.containsKey( "atSignColor" ) ) config.setProperty( "atSignColor", "4" );
+        if( !nodeMap.containsKey( "nickColor" ) ) config.setProperty( "nickColor", "5" );
         if( !nodeMap.containsKey( "useEssentials" ) ) config.setProperty( "useEssentials", false );
         if( !nodeMap.containsKey( "useSpout" ) ) config.setProperty( "useSpout", false );
         if( !nodeMap.containsKey( "spoutSound" ) ) config.setProperty( "spoutSound", "NONE" );
@@ -64,6 +65,7 @@ public class ChatAutoCompleteConfig
             config.setProperty( "spoutNotificationMessage", "You've been highlighted!" );
         if( !nodeMap.containsKey( "spoutNotificationMaterial" ) )
             config.setProperty( "spoutNotificationMaterial", org.bukkit.Material.DIAMOND.toString() );
+
     }
 
     public String getChatPrefix()
@@ -119,6 +121,11 @@ public class ChatAutoCompleteConfig
     public String getSpoutNotificationMaterial()
     {
         return config.getString( "spoutNotificationMaterial", org.bukkit.Material.DIAMOND.toString() );
+    }
+
+    public String getNickColor()
+    {
+        return config.getString( "nickColor", "5" );
     }
 
     private final Configuration config;

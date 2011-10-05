@@ -39,7 +39,20 @@ class ChatAutoCompletePlayerListener extends PlayerListener
         charPrefix = config.getChatPrefix().charAt( 0 );
         maxReplace = config.getMaxReplace();
         // Convert color code to ChatColor
-        atSignColor = ChatColor.getByCode( Integer.parseInt( config.getAtSignColor(), 16 ) );
+        try
+        {
+            atSignColor = ChatColor.getByCode( Integer.parseInt( config.getAtSignColor(), 16 ) );
+        } catch( NumberFormatException ex )
+        {
+            atSignColor = null;
+        }
+        try
+        {
+            nickColor = ChatColor.getByCode( Integer.parseInt( config.getNickColor(), 16 ) );
+        } catch( NumberFormatException ex )
+        {
+            nickColor = null;
+        }
         permHandler = cPermHandler;
         spoutListener = plugin.getSpoutListener();
 
@@ -142,13 +155,15 @@ class ChatAutoCompletePlayerListener extends PlayerListener
     String getPrefix( Player player )
     {
         if( permHandler != null ) return permHandler.getUserPrefix( player.getWorld().getName(), player.getName() );
-        return "";
+        if( nickColor == null ) return "";
+        return nickColor.toString();
     }
 
     private final ChatAutoComplete plugin;
     private final int charPrefix;
     private final int maxReplace;
-    private final ChatColor atSignColor;
+    private ChatColor atSignColor;
+    private ChatColor nickColor;
     private final PermissionHandler permHandler;
     private final ChatAutoCompleteSpoutPlayerListener spoutListener;
 
