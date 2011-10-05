@@ -19,25 +19,21 @@
 package plugin.whitebear.neptune.ChatAutoComplete;
 
 
+import java.util.*;
 import java.util.regex.Pattern;
 
-import com.earth2me.essentials.perm.PermissionsHandler;
+
 import com.nijiko.permissions.PermissionHandler;
-import org.anjocaido.groupmanager.permissions.NijikoPermissionsProxy;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.player.SpoutPlayer;
-import org.getspout.spoutapi.sound.SoundEffect;
-import org.getspout.spoutapi.sound.SoundManager;
+
 
 class ChatAutoCompletePlayerListener extends PlayerListener
 {
 
-    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, ChatAutoCompleteConfig config, PermissionHandler cPermHandler, boolean cUseSpout )
+    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, ChatAutoCompleteConfig config, PermissionHandler cPermHandler )
     {
         plugin = cPlugin;
         charPrefix = config.getChatPrefix().charAt( 0 );
@@ -45,9 +41,8 @@ class ChatAutoCompletePlayerListener extends PlayerListener
         // Convert color code to ChatColor
         atSignColor = ChatColor.getByCode( Integer.parseInt( config.getAtSignColor(), 16 ) );
         permHandler = cPermHandler;
-        useSpout = cUseSpout;
-        spoutSound = config.getSpoutSound();
-        useNotification = config.getUseNotification();
+        spoutListener = plugin.getSpoutListener();
+
     }
 
     public void onPlayerChat( PlayerChatEvent event )
@@ -55,13 +50,13 @@ class ChatAutoCompletePlayerListener extends PlayerListener
 
         if( event.isCancelled() ) return;
         Player sender = event.getPlayer();
+        // Escape if cancelled or doesn't have permissions
         if( permHandler != null )
         {
-             if( !permHandler.has( sender, "autocomp.autocomp" ) ) return;
-        }
-        else if( !sender.hasPermission( "autocomp.autocomp" ) ) return;
-        // Escape if cancelled or doesn't have permissions
+            if( !permHandler.has( sender, "autocomp.autocomp" ) ) return;
+        } else if( !sender.hasPermission( "autocomp.autocomp" ) ) return;
 
+        // Use message or if mChat or something changed the format to not include message, use format
         String msg = event.getFormat();
         boolean useFormat = true;
         if( msg.contains( "%2$s" ) )
@@ -70,81 +65,71 @@ class ChatAutoCompletePlayerListener extends PlayerListener
             msg = event.getMessage();
         }
 
-        int lastIndex = 0;
-        int position = msg.indexOf( charPrefix, lastIndex );
+        //Escape if msg doesn't contain the prefix
+        if( msg.indexOf( charPrefix ) == -1 ) return;
+
+        ArrayList<String> msgSplit = new ArrayList<String>();
+        Collections.addAll( msgSplit, msg.split( "\\s" ) );
+        HashMap<String, Player> playerMap = new HashMap<String, Player>();
+        HashMap<String, String> nameMap = new HashMap<String, String>();
         int safeLoop = maxReplace;
-        // Loop until nothing else to replace or maximum replaces reached
-        while( position != -1 && safeLoop > 0 )
+
+        StringBuilder builder = new StringBuilder();
+
+        for( String part : msgSplit )
         {
-
-            // Find next space after the @ and extract the name
-            int nextSpace = msg.indexOf( ' ', position );
-            String subName = msg.substring( position + 1, ( nextSpace == -1 ? msg.length() : nextSpace ) );
-
-            if( subName.length() != 0 )
+            if( part.charAt( 0 ) == charPrefix )
             {
-                replaceName( subName, msg, useFormat, event );
                 safeLoop--;
+                // cut off the prefix
+                String subName = part.substring( 1 );
+                // check cache first
+                if( nameMap.containsKey( subName ) )
+                {
+                    if( nameMap.get( subName ) != null ) subName = nameMap.get( subName );
 
+                } else
+                {
+                    //check for player
+                    Player player = plugin.getServer().getPlayer( subName );
+                    if( player != null )
+                    {
+                        if( !playerMap.containsKey( player.getName() ) )
+                        {
+                            playerMap.put( player.getName(), player );
+
+                        }
+                        nameMap.put( subName, player.getName() );
+                        subName = player.getName();
+                    } else
+                    {
+                        nameMap.put( subName, null );
+                    }
+                }
+                if( playerMap.containsKey( subName ) || ( nameMap.containsKey( subName ) && nameMap.get( subName ) != null ) )
+                {
+
+                    builder.append( builder.length() == 0 ? "" : " " ).append( ( char ) charPrefix ).append( subName );
+
+                } else
+                {
+                    if( builder.length() != 0 ) part = " " + part;
+                    builder.append( part );
+                }
+            } else
+            {
+                if( builder.length() != 0 ) part = " " + part;
+                builder.append( part );
             }
-            // Skip @ and first letter so the same one isn't found again
-            lastIndex = position + 2;
-            // Exit if end of string
-            if( lastIndex > msg.length() ) break;
-            position = msg.indexOf( charPrefix, lastIndex );
+            if( safeLoop <= 0 ) break;
+
         }
 
-    }
+        if( useFormat ) event.setFormat( builder.toString() );
+        else event.setMessage( builder.toString() );
 
-    void replaceName( String subName, String msg, boolean useFormat, PlayerChatEvent event )
-    {
-        Player player = plugin.getServer().getPlayer( subName );
+        if( spoutListener != null ) spoutListener.passEvent( event, new HashSet<Player>( playerMap.values() ) );
 
-        if( player != null )
-        {
-            String prefix = ChatColor.WHITE.toString();
-            if( permHandler != null )
-            {
-                prefix = permHandler.getUserPrefix( player.getWorld().getName(), player.getName() );
-            }
-            // Replace all occurrences with the complete name and color
-
-            msg = msg.replaceAll( "(^|\\s)" + Pattern.quote( ( char ) charPrefix + ( subName ) ) + "($|\\s)", "$1" + ( atSignColor == null ? "" : atSignColor
-                    .toString() ) + ( ( char ) charPrefix ) + prefix + player.getName() + ChatColor.WHITE
-                    .toString() + "$2" );
-
-            if( useFormat ) event.setFormat( msg );
-            else event.setMessage( msg );
-
-            if( useSpout )
-            {
-                plugin.consoleMsg( "Using spout notification", true );
-                spoutNotifyPlayer( player );
-            }
-
-        }
-    }
-
-    void spoutNotifyPlayer( Player player )
-    {
-        SpoutPlayer spoutPlayer = SpoutManager.getPlayer( player );
-        if( spoutPlayer != null )
-        {
-            if( !spoutSound.endsWith( "NONE" ) )
-            {
-                SoundManager soundMng = SpoutManager.getSoundManager();
-                SoundEffect eff = SoundEffect.getSoundEffectFromName( "random." + spoutSound );
-                if( eff != null )
-                    soundMng.playSoundEffect( spoutPlayer, eff, player
-                            .getLocation(), 20, 60 );
-                else plugin.consoleMsg( "Sound does not exist => SoundEff == NULL", true );
-            }
-            if( useNotification )
-            {
-
-                spoutPlayer.sendNotification( "Highlight", "You've been highlighted!", Material.DIAMOND_BLOCK );
-            }
-        }
     }
 
     private final ChatAutoComplete plugin;
@@ -152,7 +137,6 @@ class ChatAutoCompletePlayerListener extends PlayerListener
     private final int maxReplace;
     private final ChatColor atSignColor;
     private final PermissionHandler permHandler;
-    private final boolean useSpout;
-    private final String spoutSound;
-    private final boolean useNotification;
+    private final ChatAutoCompleteSpoutPlayerListener spoutListener;
+
 }

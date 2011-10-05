@@ -94,9 +94,10 @@ public class ChatAutoComplete extends JavaPlugin
 
         }
 
-        playerListener = new ChatAutoCompletePlayerListener( this, config, permHandler, useSpout );
+        playerListener = new ChatAutoCompletePlayerListener( this, config, permHandler );
 
         pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Low, this );
+
 
         consoleMsg( "Enabled." );
     }
@@ -117,6 +118,9 @@ public class ChatAutoComplete extends JavaPlugin
                                           .getPlugin( "Spout" )
                                           .getDescription()
                                           .getFullName() );
+        spoutListener = new ChatAutoCompleteSpoutPlayerListener( this, useSpout, this.getConfig() );
+        this.getServer().getPluginManager().registerEvent( Type.PLAYER_CHAT, spoutListener, Priority.Monitor, this );
+
     }
 
     public void consoleMsg( String msg, boolean ifDebug )
@@ -124,9 +128,15 @@ public class ChatAutoComplete extends JavaPlugin
         if( ( ifDebug && debug ) || !ifDebug ) mcLogger.info( prefix + msg );
     }
 
-    public ChatAutoCompleteConfig getConfig()
+    ChatAutoCompleteConfig getConfig()
     {
         return config;
+    }
+
+    public ChatAutoCompleteSpoutPlayerListener getSpoutListener()
+    {
+        if( !useSpout ) return null;
+        else return spoutListener;
     }
 
     private String prefix = "";
@@ -136,6 +146,7 @@ public class ChatAutoComplete extends JavaPlugin
 
     private ChatAutoCompletePlayerListener playerListener;
     private ChatAutoCompleteConfig config;
+    private ChatAutoCompleteSpoutPlayerListener spoutListener;
 
     private PermissionHandler permHandler = null;
 

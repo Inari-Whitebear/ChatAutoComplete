@@ -21,6 +21,7 @@ package plugin.whitebear.neptune.ChatAutoComplete;
 
 
 import org.bukkit.util.config.Configuration;
+import org.getspout.spoutapi.material.Material;
 
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public class ChatAutoCompleteConfig
     private void setDefaults()
     {
         Map<String, Object> nodeMap = config.getAll();
-        config.setHeader( "#ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum unique names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable." + "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none" );
+        config.setHeader( "#ChatAutoComplete Config", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum unique names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable." + "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none", "#spoutUseNotification = using notification? true/false", "#spoutNotificationTitle = Title used for notification", "#spoutNotificationMessage = Message sent to player on notification", "#spoutNotificationMaterial = Material Symbol used for Notification message" );
 
         if( !nodeMap.containsKey( "debug" ) ) config.setProperty( "debug", false );
         if( !nodeMap.containsKey( "chatPrefix" ) ) config.setProperty( "chatPrefix", "@" );
@@ -59,6 +60,12 @@ public class ChatAutoCompleteConfig
         if( !nodeMap.containsKey( "useSpout" ) ) config.setProperty( "useSpout", false );
         if( !nodeMap.containsKey( "spoutSound" ) ) config.setProperty( "spoutSound", "NONE" );
         if( !nodeMap.containsKey( "useNotification" ) ) config.setProperty( "useNotification", false );
+        if( !nodeMap.containsKey( "spoutNotificationTitle" ) )
+            config.setProperty( "spoutNotificationTitle", "Highlight!" );
+        if( !nodeMap.containsKey( "spoutNotificationMessage" ) )
+            config.setProperty( "spoutNotificationMessage", "You've been highlighted!" );
+        if( !nodeMap.containsKey( "spoutNotificationMaterial" ) )
+            config.setProperty( "spoutNotificationMaterial", org.bukkit.Material.DIAMOND.toString() );
     }
 
     public String getChatPrefix()
@@ -99,6 +106,21 @@ public class ChatAutoCompleteConfig
     public boolean getDebug()
     {
         return config.getBoolean( "debug", false );
+    }
+
+    public String getSpoutNotificationTitle()
+    {
+        return config.getString( "spoutNotificationTitle", "Highlight!" );
+    }
+
+    public String getSpoutNotificationMessage()
+    {
+        return config.getString( "spoutNotificationMessage", "You've been highlighted!" );
+    }
+
+    public String getSpoutNotificationMaterial()
+    {
+        return config.getString( "spoutNotificationMaterial", org.bukkit.Material.DIAMOND.toString() );
     }
 
     private final ChatAutoComplete plugin;
