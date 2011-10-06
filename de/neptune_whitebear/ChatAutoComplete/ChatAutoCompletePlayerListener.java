@@ -64,11 +64,13 @@ class ChatAutoCompletePlayerListener extends PlayerListener
         if( event.isCancelled() ) return;
         Player sender = event.getPlayer();
         // Escape if cancelled or doesn't have permissions
+        plugin.consoleMsg( "chatEvent", true );
         if( permHandler != null )
         {
+            plugin.consoleMsg( "Using PermHandler", true );
             if( !permHandler.has( sender, "autocomp.autocomp" ) ) return;
         } else if( !sender.hasPermission( "autocomp.autocomp" ) ) return;
-
+        plugin.consoleMsg( "Perms OK", true );
         // Use message or if mChat or something changed the format to not include message, use format
         String msg = event.getFormat();
         boolean useFormat = true;
@@ -148,14 +150,17 @@ class ChatAutoCompletePlayerListener extends PlayerListener
         if( useFormat ) event.setFormat( builder.toString() );
         else event.setMessage( builder.toString() );
 
-        if( spoutListener != null ) spoutListener.passEvent( event, new HashSet<Player>( playerMap.values() ) );
+        if( spoutListener != null ) spoutListener.passEvent( event, playerMap.values() );
 
     }
 
     String getPrefix( Player player )
     {
+
         if( permHandler != null ) return permHandler.getUserPrefix( player.getWorld().getName(), player.getName() );
+        plugin.consoleMsg( "using Nick Color", true );
         if( nickColor == null ) return "";
+        plugin.consoleMsg( "using true Nick Color", true );
         return nickColor.toString();
     }
 

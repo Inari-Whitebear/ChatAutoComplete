@@ -30,6 +30,7 @@ import org.getspout.spoutapi.sound.SoundEffect;
 import org.getspout.spoutapi.sound.SoundManager;
 
 
+import java.util.Collection;
 import java.util.Set;
 
 class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
@@ -103,7 +104,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
         }
     }
 
-    public void passEvent( PlayerChatEvent event, Set<Player> notifyPlayers )
+    public void passEvent( PlayerChatEvent event, Collection<Player> notifyPlayers )
     {
         if( !useSpout ) return;
         lastEvent = event;
@@ -112,7 +113,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
 
     private final ChatAutoComplete plugin;
     private PlayerChatEvent lastEvent;
-    private Set<Player> lastPlayers;
+    private Collection<Player> lastPlayers;
 
     private final boolean useSpout;
     private final String spoutSound;

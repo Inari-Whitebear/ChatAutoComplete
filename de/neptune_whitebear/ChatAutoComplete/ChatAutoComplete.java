@@ -91,9 +91,9 @@ public class ChatAutoComplete extends JavaPlugin
 
         }
 
-        playerListener = new ChatAutoCompletePlayerListener( this, config, permHandler );
+        ChatAutoCompletePlayerListener playerListener = new ChatAutoCompletePlayerListener( this, config, permHandler );
 
-        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Low, this );
+        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.High, this );
 
 
         consoleMsg( "Enabled." );
@@ -141,7 +141,6 @@ public class ChatAutoComplete extends JavaPlugin
     private boolean useSpout = false;
     private boolean debug = false;
 
-    private ChatAutoCompletePlayerListener playerListener;
     private ChatAutoCompleteConfig config;
     private ChatAutoCompleteSpoutPlayerListener spoutListener;
 
