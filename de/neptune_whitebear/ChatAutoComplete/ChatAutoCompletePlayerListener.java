@@ -20,12 +20,6 @@
 package de.neptune_whitebear.ChatAutoComplete;
 
 
-import java.util.*;
-
-
-import com.nijiko.permissions.PermissionHandler;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
 
@@ -33,143 +27,26 @@ import org.bukkit.event.player.PlayerListener;
 class ChatAutoCompletePlayerListener extends PlayerListener
 {
 
-    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, ChatAutoCompleteConfig config, PermissionHandler cPermHandler )
+    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, MessageProcessor cMessageProcessor )
     {
         plugin = cPlugin;
-        charPrefix = config.getChatPrefix().charAt( 0 );
-        maxReplace = config.getMaxReplace();
-        // Convert color code to ChatColor
-        try
-        {
-            atSignColor = ChatColor.getByCode( Integer.parseInt( config.getAtSignColor(), 16 ) );
-        } catch( NumberFormatException ex )
-        {
-            atSignColor = null;
-        }
-        try
-        {
-            nickColor = ChatColor.getByCode( Integer.parseInt( config.getNickColor(), 16 ) );
-        } catch( NumberFormatException ex )
-        {
-            nickColor = null;
-        }
-        permHandler = cPermHandler;
-        spoutListener = plugin.getSpoutListener();
+        messageProcessor = cMessageProcessor;
 
     }
 
     public void onPlayerChat( PlayerChatEvent event )
     {
 
+
         if( event.isCancelled() ) return;
-        Player sender = event.getPlayer();
-        // Escape if cancelled or doesn't have permissions
-        plugin.consoleMsg( "chatEvent", true );
-        if( permHandler != null )
-        {
-            plugin.consoleMsg( "Using PermHandler", true );
-            if( !permHandler.has( sender, "autocomp.autocomp" ) ) return;
-        } else if( !sender.hasPermission( "autocomp.autocomp" ) ) return;
-        plugin.consoleMsg( "Perms OK", true );
-        // Use message or if mChat or something changed the format to not include message, use format
-        String msg = event.getFormat();
-        boolean useFormat = true;
-        if( msg.contains( "%2$s" ) )
-        {
-            useFormat = false;
-            msg = event.getMessage();
-        }
-
-        //Escape if msg doesn't contain the prefix
-        if( msg.indexOf( charPrefix ) == -1 ) return;
-
-
-        String[] msgSplit = msg.split( "\\s" );
-        Map<String, Player> playerMap = new HashMap<String, Player>();
-        Map<String, String> nameMap = new HashMap<String, String>();
-        int safeLoop = maxReplace;
-
-        StringBuilder builder = new StringBuilder();
-
-        for( String part : msgSplit )
-        {
-            if( part.charAt( 0 ) == charPrefix )
-            {
-                safeLoop--;
-                // cut off the prefix
-                String subName = part.substring( 1 );
-                // check cache first
-                if( nameMap.containsKey( subName ) )
-                {
-                    if( nameMap.get( subName ) != null ) subName = nameMap.get( subName );
-
-                } else
-                {
-                    //check for player
-                    Player player = plugin.getServer().getPlayer( subName );
-                    if( player != null )
-                    {
-                        if( !playerMap.containsKey( player.getName() ) )
-                        {
-                            playerMap.put( player.getName(), player );
-
-                        }
-                        nameMap.put( subName, player.getName() );
-                        subName = player.getName();
-                    } else
-                    {
-                        nameMap.put( subName, null );
-                    }
-                }
-                if( playerMap.containsKey( subName ) || ( nameMap.containsKey( subName ) && nameMap.get( subName ) != null ) )
-                {
-                    String prefix = getPrefix( playerMap.get( subName ) );
-
-                    builder.append( builder.length() == 0 ? "" : " " )
-                           .append( ( atSignColor == null ) ? "" : atSignColor )
-                           .append( ( char ) charPrefix )
-                           .append( ChatColor.WHITE )
-                           .append( prefix )
-                           .append( subName )
-                           .append( ChatColor.WHITE );
-
-                } else
-                {
-                    if( builder.length() != 0 ) part = " " + part;
-                    builder.append( part );
-                }
-            } else
-            {
-                if( builder.length() != 0 ) part = " " + part;
-                builder.append( part );
-            }
-            if( safeLoop <= 0 ) break;
-
-        }
-
-        if( useFormat ) event.setFormat( builder.toString() );
-        else event.setMessage( builder.toString() );
-
-        if( spoutListener != null ) spoutListener.passEvent( event, playerMap.values() );
+        String[] process = messageProcessor.ProcessMessage( event.getPlayer(), event.getMessage(), event.getFormat(), event );
+        event.setMessage( process[0] );
+        event.setFormat( process[1] );
 
     }
 
-    String getPrefix( Player player )
-    {
-
-        if( permHandler != null ) return permHandler.getUserPrefix( player.getWorld().getName(), player.getName() );
-        plugin.consoleMsg( "using Nick Color", true );
-        if( nickColor == null ) return "";
-        plugin.consoleMsg( "using true Nick Color", true );
-        return nickColor.toString();
-    }
 
     private final ChatAutoComplete plugin;
-    private final int charPrefix;
-    private final int maxReplace;
-    private ChatColor atSignColor;
-    private ChatColor nickColor;
-    private final PermissionHandler permHandler;
-    private final ChatAutoCompleteSpoutPlayerListener spoutListener;
+    private final MessageProcessor messageProcessor;
 
 }

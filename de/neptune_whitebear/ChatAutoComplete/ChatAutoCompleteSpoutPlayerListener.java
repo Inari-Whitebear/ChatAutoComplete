@@ -22,13 +22,13 @@ package de.neptune_whitebear.ChatAutoComplete;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.SpoutPlayer;
 import org.getspout.spoutapi.sound.SoundEffect;
 import org.getspout.spoutapi.sound.SoundManager;
-
 
 import java.util.Collection;
 import java.util.Set;
@@ -64,7 +64,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
 
     public void onPlayerChat( PlayerChatEvent event )
     {
-        if( event != lastEvent ) return;
+        if( (Event)event != lastEvent ) return;
         if( event.isCancelled() )
         {
             lastEvent = null;
@@ -104,7 +104,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
         }
     }
 
-    public void passEvent( PlayerChatEvent event, Collection<Player> notifyPlayers )
+    public void passEvent( Event event, Collection<Player> notifyPlayers )
     {
         if( !useSpout ) return;
         lastEvent = event;
@@ -112,7 +112,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
     }
 
     private final ChatAutoComplete plugin;
-    private PlayerChatEvent lastEvent;
+    private Event lastEvent;
     private Collection<Player> lastPlayers;
 
     private final boolean useSpout;

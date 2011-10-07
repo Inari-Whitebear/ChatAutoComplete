@@ -22,6 +22,7 @@ package de.neptune_whitebear.ChatAutoComplete;
 import java.util.logging.Logger;
 
 
+import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.Plugin;
@@ -50,6 +51,7 @@ public class ChatAutoComplete extends JavaPlugin
         mcLogger = Logger.getLogger( "Minecraft" );
         config = new ChatAutoCompleteConfig( this );
         config.loadConfig();
+
 
         if( config.getDebug() )
         {
@@ -83,6 +85,18 @@ public class ChatAutoComplete extends JavaPlugin
             }
         }
 
+        messageProcessor = new MessageProcessor( this, config, permHandler );
+
+        if( pgnMng.getPlugin( "HeroChat" ) != null )
+        {
+            consoleMsg( "Using HeroChat: " + pgnMng.getPlugin( "HeroChat" ).getDescription().getFullName() );
+            heroChatListener = new HeroChatListener( this, messageProcessor );
+            pgnMng.registerEvent( Type.CUSTOM_EVENT, heroChatListener, Priority.Normal, this );
+
+
+        }
+
+
         useSpout = config.getUseSpout();
 
         if( config.getUseSpout() && useSpout && pgnMng.getPlugin( "Spout" ) != null )
@@ -91,7 +105,7 @@ public class ChatAutoComplete extends JavaPlugin
 
         }
 
-        ChatAutoCompletePlayerListener playerListener = new ChatAutoCompletePlayerListener( this, config, permHandler );
+        ChatAutoCompletePlayerListener playerListener = new ChatAutoCompletePlayerListener( this, messageProcessor );
 
         pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.High, this );
 
@@ -143,6 +157,8 @@ public class ChatAutoComplete extends JavaPlugin
 
     private ChatAutoCompleteConfig config;
     private ChatAutoCompleteSpoutPlayerListener spoutListener;
+    private MessageProcessor messageProcessor;
+    private HeroChatListener heroChatListener;
 
     private PermissionHandler permHandler = null;
 
