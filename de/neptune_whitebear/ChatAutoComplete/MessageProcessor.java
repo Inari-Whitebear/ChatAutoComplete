@@ -27,8 +27,10 @@ import org.bukkit.event.Event;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class MessageProcessor
+class MessageProcessor
 {
 
     public MessageProcessor( ChatAutoComplete cPlugin, ChatAutoCompleteConfig config, PermissionHandler cPermHandler )
@@ -54,6 +56,10 @@ public class MessageProcessor
 
         permHandler = cPermHandler;
         spoutListener = plugin.getSpoutListener();
+        keepPrefix = config.getKeepPrefix();
+        searchType = config.getSearchType();
+        ignoreSymbols = config.getIgnoreSymbols();
+        plugin.consoleMsg( "Ignored symbols: " + ignoreSymbols, true );
     }
 
     public String[] ProcessMessage( Player sender, String eMsg, String format, Event event )
@@ -97,8 +103,14 @@ public class MessageProcessor
             if( part.charAt( 0 ) == charPrefix )
             {
                 safeLoop--;
+
                 // cut off the prefix
                 String subName = part.substring( 1 );
+                String extName = subName;
+                plugin.consoleMsg( "Stripping name pre: " + subName, true );
+                subName = stripIgnoredSymbols( subName );
+
+                plugin.consoleMsg( "Stripping name post: " + subName, true );
                 // check cache first
                 if( nameMap.containsKey( subName ) )
                 {
@@ -107,7 +119,7 @@ public class MessageProcessor
                 } else
                 {
                     //check for player
-                    Player player = plugin.getServer().getPlayer( subName );
+                    Player player = getPlayer( subName );
                     if( player != null )
                     {
                         if( !playerMap.containsKey( player.getName() ) )
@@ -125,11 +137,17 @@ public class MessageProcessor
                 if( playerMap.containsKey( subName ) || ( nameMap.containsKey( subName ) && nameMap.get( subName ) != null ) )
                 {
                     String prefix = getPrefix( playerMap.get( subName ) );
+                    subName = extName.replaceAll( "(?<=([" + ignoreSymbols + "]|^))(\\w+)(.*\\w+)?(?=([" + ignoreSymbols + "]|$))", subName + ChatColor.WHITE );
+                    StringBuilder sign = new StringBuilder();
+                    if( keepPrefix )
+                    {
+                        sign.append( ( atSignColor == null ) ? "" : atSignColor )
+                            .append( ( char ) charPrefix )
+                            .append( ChatColor.WHITE );
+                    }
 
                     builder.append( builder.length() == 0 ? "" : " " )
-                           .append( ( atSignColor == null ) ? "" : atSignColor )
-                           .append( ( char ) charPrefix )
-                           .append( ChatColor.WHITE )
+                           .append( sign.toString() )
                            .append( prefix )
                            .append( subName )
                            .append( ChatColor.WHITE );
@@ -148,15 +166,37 @@ public class MessageProcessor
 
         }
 
-        if( useFormat )
-            format = builder.toString();
-        else
-            eMsg = builder.toString();
+        if( useFormat ) format = builder.toString();
+        else eMsg = builder.toString();
 
         if( spoutListener != null ) spoutListener.passEvent( event, playerMap.values() );
         return new String[]{ eMsg, format };
     }
 
+    String stripIgnoredSymbols( String input )
+    {
+        Pattern regex = Pattern.compile( "(?<=([" + ignoreSymbols + "]|^))(\\w+)(.*\\w+)?(?=([" + ignoreSymbols + "]|$))" );
+        Matcher m = regex.matcher( input );
+        if( m.find() ) return m.group( 0 );
+        else return input;
+    }
+
+
+    Player getPlayer( String subName )
+    {
+        plugin.consoleMsg( "Searching for: " + subName + " (SearchMode="+searchType+")", true );
+        if( searchType.equals( "start" ) ) return plugin.getServer().getPlayer( subName );
+        else if( searchType.equals( "exact" ) ) return plugin.getServer().getPlayerExact( subName );
+        else if( searchType.equals( "end" ) || searchType.equals( "contains" ) )
+        {
+            for( Player player : plugin.getServer().getOnlinePlayers() )
+            {
+                if( searchType.equals( "end" ) && player.getName().toLowerCase().endsWith( subName.toLowerCase() ) ) return player;
+                else if( searchType.equals( "contains" ) && player.getName().toLowerCase().contains( subName.toLowerCase() ) ) return player;
+            }
+        }
+        return null;
+    }
 
     String getPrefix( Player player )
     {
@@ -175,6 +215,9 @@ public class MessageProcessor
     private ChatColor nickColor;
     private final PermissionHandler permHandler;
     private final ChatAutoCompleteSpoutPlayerListener spoutListener;
+    private final boolean keepPrefix;
+    private final String searchType;
+    private final String ignoreSymbols;
 
 
 }

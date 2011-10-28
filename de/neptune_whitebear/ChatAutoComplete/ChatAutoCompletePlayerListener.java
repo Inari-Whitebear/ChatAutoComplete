@@ -29,7 +29,7 @@ class ChatAutoCompletePlayerListener extends PlayerListener
 
     public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, MessageProcessor cMessageProcessor )
     {
-        plugin = cPlugin;
+        ChatAutoComplete plugin = cPlugin;
         messageProcessor = cMessageProcessor;
 
     }
@@ -46,7 +46,6 @@ class ChatAutoCompletePlayerListener extends PlayerListener
     }
 
 
-    private final ChatAutoComplete plugin;
     private final MessageProcessor messageProcessor;
 
 }

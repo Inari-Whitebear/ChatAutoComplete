@@ -64,7 +64,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
 
     public void onPlayerChat( PlayerChatEvent event )
     {
-        if( (Event)event != lastEvent ) return;
+        if( event != lastEvent ) return;
         if( event.isCancelled() )
         {
             lastEvent = null;

@@ -20,114 +20,135 @@
 package de.neptune_whitebear.ChatAutoComplete;
 
 
-import org.bukkit.util.config.Configuration;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.Map;
+
+import java.io.File;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
 
 public class ChatAutoCompleteConfig
 {
 
     public ChatAutoCompleteConfig( ChatAutoComplete instance )
     {
-        config = instance.getConfiguration();
+        plugin = instance;
+        config = instance.getConfig();
+
+      /*  try
+        {
+            JarFile jar = new JarFile( "plugins/ChatAutoComplete.jar" );
+            JarEntry entry = jar.getJarEntry( "config1.yml" );
+            if( entry == null )
+            {
+                plugin.consoleMsg( "No default config found." );
+            }
+
+            YamlConfiguration yaml = new YamlConfiguration();
+            yaml.load( jar.getInputStream( entry ) );
+            config.setDefaults( yaml );
+        } catch( Exception ex )
+        {
+            plugin.consoleMsg( "ERROR; Unable to load default config file. =>" );
+            plugin.consoleMsg( ex.toString() );
+        }
+
+        config.options().copyDefaults( true );
+        config.options().copyHeader( true );   */
+
+        saveConfig();
+
     }
 
-    public void loadConfig()
-    {
-        if( config == null ) return;
-        config.load();
-        setDefaults();
-        saveConfig();
-    }
 
     private void saveConfig()
     {
-        if( config != null ) config.save();
+        plugin.saveConfig();
     }
-
-    private void setDefaults()
+    void setDefault( FileConfiguration def, String name, Object value )
     {
-        Map<String, Object> nodeMap = config.getAll();
-        config.setHeader( "#de.neptune_whitebear.ChatAutoComplete Config", "#debug = Debugging Mode? default = false", "#chatPrefix = prefix to use before names so they get auto-completed", "#maxReplace = maximum prefixed names replaced in a single chat message", "#atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable.", "#nickColor = Coloring for nicks if not using Essentials; use '-1' (in quotes) to disable.", "#useEssentials = using essentials for name prefixing", "#useSpout = using spout for additional effects", "#spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none", "#spoutUseNotification = using notification? true/false", "#spoutNotificationTitle = Title used for notification", "#spoutNotificationMessage = Message sent to player on notification", "#spoutNotificationMaterial = Material Symbol used for Notification message" );
-
-        if( !nodeMap.containsKey( "debug" ) ) config.setProperty( "debug", false );
-        if( !nodeMap.containsKey( "chatPrefix" ) ) config.setProperty( "chatPrefix", "@" );
-        if( !nodeMap.containsKey( "maxReplace" ) ) config.setProperty( "maxReplace", 10 );
-        if( !nodeMap.containsKey( "atSignColor" ) ) config.setProperty( "atSignColor", "4" );
-        if( !nodeMap.containsKey( "nickColor" ) ) config.setProperty( "nickColor", "5" );
-        if( !nodeMap.containsKey( "useEssentials" ) ) config.setProperty( "useEssentials", false );
-        if( !nodeMap.containsKey( "useSpout" ) ) config.setProperty( "useSpout", false );
-        if( !nodeMap.containsKey( "spoutSound" ) ) config.setProperty( "spoutSound", "NONE" );
-        if( !nodeMap.containsKey( "useNotification" ) ) config.setProperty( "useNotification", false );
-        if( !nodeMap.containsKey( "spoutNotificationTitle" ) )
-            config.setProperty( "spoutNotificationTitle", "Highlight!" );
-        if( !nodeMap.containsKey( "spoutNotificationMessage" ) )
-            config.setProperty( "spoutNotificationMessage", "You've been highlighted!" );
-        if( !nodeMap.containsKey( "spoutNotificationMaterial" ) )
-            config.setProperty( "spoutNotificationMaterial", org.bukkit.Material.DIAMOND.toString() );
-
+        if( def.get( name ) == null ) def.set( name, value );
     }
 
     public String getChatPrefix()
     {
-        return config.getString( "chatPrefix", "@" );
+        return config.getString( "general.chatPrefix" );
     }
 
     public int getMaxReplace()
     {
-        return config.getInt( "maxReplace", 10 );
+        return config.getInt( "general.maxReplace" );
     }
 
     public String getAtSignColor()
     {
-        return config.getString( "atSignColor", "4" );
+        return config.getString( "colors.atSignColor" );
     }
 
     public boolean getUseEssentials()
     {
-        return config.getBoolean( "useEssentials", false );
+        return config.getBoolean( "colors.useEssentials" );
     }
 
     public boolean getUseSpout()
     {
-        return config.getBoolean( "useSpout", false );
+        return config.getBoolean( "spout.useSpout" );
     }
 
     public String getSpoutSound()
     {
-        return config.getString( "spoutSound", "NONE" );
+        return config.getString( "spout.spoutSound" );
     }
 
     public boolean getUseNotification()
     {
-        return config.getBoolean( "useNotification", false );
+        return config.getBoolean( "spout.useNotification" );
     }
 
     public boolean getDebug()
     {
-        return config.getBoolean( "debug", false );
+        return config.getBoolean( "dev.debug" );
     }
 
     public String getSpoutNotificationTitle()
     {
-        return config.getString( "spoutNotificationTitle", "Highlight!" );
+        return config.getString( "spout.spoutNotificationTitle" );
     }
 
     public String getSpoutNotificationMessage()
     {
-        return config.getString( "spoutNotificationMessage", "You've been highlighted!" );
+        return config.getString( "spout.spoutNotificationMessage" );
     }
 
     public String getSpoutNotificationMaterial()
     {
-        return config.getString( "spoutNotificationMaterial", org.bukkit.Material.DIAMOND.toString() );
+        return config.getString( "spout.spoutNotificationMaterial" );
     }
 
     public String getNickColor()
     {
-        return config.getString( "nickColor", "5" );
+        return config.getString( "colors.nickColor" );
     }
 
-    private final Configuration config;
+    public boolean getKeepPrefix()
+    {
+        return config.getBoolean( "general.keepPrefix" );
+    }
+
+    public String getIgnoreSymbols()
+    {
+        return config.getString( "general.ignoreSymbols" );
+    }
+
+    public String getSearchType()
+    {
+        return config.getString( "general.searchType" );
+    }
+
+    private final FileConfiguration config;
+    private final ChatAutoComplete plugin;
 
 }

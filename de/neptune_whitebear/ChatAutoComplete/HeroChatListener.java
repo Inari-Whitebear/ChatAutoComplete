@@ -25,7 +25,7 @@ import com.herocraftonline.dthielke.herochat.event.ChannelChatEvent;
 import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
 
-public class HeroChatListener extends CustomEventListener
+class HeroChatListener extends CustomEventListener
 {
 
     public HeroChatListener( ChatAutoComplete instance, MessageProcessor cMessageProcessor )
@@ -34,7 +34,7 @@ public class HeroChatListener extends CustomEventListener
         messageProcessor = cMessageProcessor;
     }
 
-    public void onChannelChatEvent( ChannelChatEvent event )
+    void onChannelChatEvent( ChannelChatEvent event )
     {
         if( event.isCancelled() ) return;
         if( !event.isSentByPlayer() ) return;
@@ -55,6 +55,6 @@ public class HeroChatListener extends CustomEventListener
     }
 
 
-    MessageProcessor messageProcessor;
-    ChatAutoComplete plugin;
+    private final MessageProcessor messageProcessor;
+    private final ChatAutoComplete plugin;
 }

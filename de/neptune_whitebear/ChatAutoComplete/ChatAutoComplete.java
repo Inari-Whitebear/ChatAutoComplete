@@ -19,6 +19,7 @@
 
 package de.neptune_whitebear.ChatAutoComplete;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 
@@ -50,7 +51,6 @@ public class ChatAutoComplete extends JavaPlugin
         prefix = "[" + pluginDesc.getName() + " (" + pluginDesc.getVersion() + ")] ";
         mcLogger = Logger.getLogger( "Minecraft" );
         config = new ChatAutoCompleteConfig( this );
-        config.loadConfig();
 
 
         if( config.getDebug() )
@@ -85,12 +85,12 @@ public class ChatAutoComplete extends JavaPlugin
             }
         }
 
-        messageProcessor = new MessageProcessor( this, config, permHandler );
+        MessageProcessor messageProcessor = new MessageProcessor( this, config, permHandler );
 
         if( pgnMng.getPlugin( "HeroChat" ) != null )
         {
             consoleMsg( "Using HeroChat: " + pgnMng.getPlugin( "HeroChat" ).getDescription().getFullName() );
-            heroChatListener = new HeroChatListener( this, messageProcessor );
+            HeroChatListener heroChatListener = new HeroChatListener( this, messageProcessor );
             pgnMng.registerEvent( Type.CUSTOM_EVENT, heroChatListener, Priority.Normal, this );
 
 
@@ -129,7 +129,7 @@ public class ChatAutoComplete extends JavaPlugin
                                           .getPlugin( "Spout" )
                                           .getDescription()
                                           .getFullName() );
-        spoutListener = new ChatAutoCompleteSpoutPlayerListener( this, useSpout, this.getConfig() );
+        spoutListener = new ChatAutoCompleteSpoutPlayerListener( this, useSpout, this.getConfigInstance() );
         this.getServer().getPluginManager().registerEvent( Type.PLAYER_CHAT, spoutListener, Priority.Monitor, this );
 
     }
@@ -139,7 +139,7 @@ public class ChatAutoComplete extends JavaPlugin
         if( ( ifDebug && debug ) || !ifDebug ) mcLogger.info( prefix + msg );
     }
 
-    ChatAutoCompleteConfig getConfig()
+    ChatAutoCompleteConfig getConfigInstance()
     {
         return config;
     }
@@ -157,8 +157,6 @@ public class ChatAutoComplete extends JavaPlugin
 
     private ChatAutoCompleteConfig config;
     private ChatAutoCompleteSpoutPlayerListener spoutListener;
-    private MessageProcessor messageProcessor;
-    private HeroChatListener heroChatListener;
 
     private PermissionHandler permHandler = null;
 

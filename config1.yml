@@ -1,0 +1,33 @@
+# de.neptune_whitebear.ChatAutoComplete Config
+# debug = Debugging Mode? default = false
+# chatPrefix = prefix to use before names so they get auto-completed
+# maxReplace = maximum prefixed names replaced in a single chat message
+# atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable.
+# nickColor = Coloring for nicks if not using Essentials; use '-1' (in quotes) to disable.
+# useEssentials = using essentials for name prefixing
+# useSpout = using spout for additional effects
+# spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none
+# spoutUseNotification = using notification? true/false
+# spoutNotificationTitle = Title used for notification
+# spoutNotificationMessage = Message sent to player on notification
+# spoutNotificationMaterial = Material Symbol used for Notification message
+
+general:
+  chatPrefix: '@'
+  keepPrefix: true
+  maxReplace: 10
+  ignoreSymbols: ,
+  searchType: start
+colors:
+  atSignColor: '4'
+  nickColor: '5'
+  useEssentials: false
+spout:
+  useSpout: false
+  spoutSound: NONE
+  useNotification: false
+  spoutNotificationTitle: Highlight!
+  spoutNotificationMessage: You've been highlighted!
+  spoutNotificationMaterial: DIAMOND
+dev:
+  debug: false
