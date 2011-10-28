@@ -1,22 +1,31 @@
 # de.neptune_whitebear.ChatAutoComplete Config
-# debug = Debugging Mode? default = false
-# chatPrefix = prefix to use before names so they get auto-completed
-# maxReplace = maximum prefixed names replaced in a single chat message
-# atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable.
-# nickColor = Coloring for nicks if not using Essentials; use '-1' (in quotes) to disable.
-# useEssentials = using essentials for name prefixing
-# useSpout = using spout for additional effects
-# spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none
-# spoutUseNotification = using notification? true/false
-# spoutNotificationTitle = Title used for notification
-# spoutNotificationMessage = Message sent to player on notification
-# spoutNotificationMaterial = Material Symbol used for Notification message
+# general
+# # chatPrefix = prefix to use before names so they get auto-completed (default '@')
+# # keepPrefix = keeps the prefix in the completed name? (if not, remove it) true/false (default true)
+# # maxReplace = maximum unique prefixed names replaced in a single chat message (default 10)
+# # ignoredSymbols = ignored punctuation at the end/start of the parse dname (default ',:')
+# # searchType = search type to use (start, end, contains) (default start)
+#
+# colors
+# # atSignColor = Color used for the @ sign; use '-1' (in quotes) to disable. (default '4')
+# # nickColor = Coloring for nicks if not using Essentials; use '-1' (in quotes) to disable. (default '5')
+# # useEssentials = using essentials for name prefixing? true/false (default false)
+#
+# spout
+# # useSpout = using spout? true/false (default false)
+# # spoutSound = if using spout, specify sound that should be played for the highlighted player (use 'NONE') for none (default NONE)
+# # spoutNotificationTitle = Title used for notification (default Highlight!)
+# # spoutNotificationMessage = Message sent to player on notification (default You've been highlighted!)
+# # spoutNotificationMaterial = Material Symbol used for Notification message (default DIAMOND)
+#
+# dev
+# # debug = print extra debug info? true/false (default false)
 
 general:
   chatPrefix: '@'
   keepPrefix: true
   maxReplace: 10
-  ignoreSymbols: ,
+  ignoreSymbols: ',:'
   searchType: start
 colors:
   atSignColor: '4'

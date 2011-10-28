@@ -74,6 +74,7 @@ public class ChatAutoComplete extends JavaPlugin
             Plugin essentialsBridge = pgnMng.getPlugin( "Permissions" );
             if( essentialsBridge != null && essentialsBridge.isEnabled() )
             {
+                if( essentialsBridge instanceof PermissionHandler){
                 try
                 {
                     permHandler = ( ( Permissions ) essentialsBridge ).getHandler();
@@ -81,6 +82,7 @@ public class ChatAutoComplete extends JavaPlugin
                 } catch( NoClassDefFoundError exception )
                 {
                     permHandler = null;
+                }
                 }
             }
         }
@@ -107,7 +109,7 @@ public class ChatAutoComplete extends JavaPlugin
 
         ChatAutoCompletePlayerListener playerListener = new ChatAutoCompletePlayerListener( this, messageProcessor );
 
-        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.High, this );
+        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Low, this );
 
 
         consoleMsg( "Enabled." );

@@ -58,6 +58,11 @@ class MessageProcessor
         spoutListener = plugin.getSpoutListener();
         keepPrefix = config.getKeepPrefix();
         searchType = config.getSearchType();
+        if( searchType != "start" && searchType != "end" && searchType != "contains")
+        {
+            plugin.consoleMsg("Invalid searchtype "+searchType+" defaulting to 'start'.");
+            searchType = "start";
+        }
         ignoreSymbols = config.getIgnoreSymbols();
         plugin.consoleMsg( "Ignored symbols: " + ignoreSymbols, true );
     }
@@ -216,7 +221,7 @@ class MessageProcessor
     private final PermissionHandler permHandler;
     private final ChatAutoCompleteSpoutPlayerListener spoutListener;
     private final boolean keepPrefix;
-    private final String searchType;
+    private String searchType;
     private final String ignoreSymbols;
 
 

@@ -38,7 +38,7 @@ public class ChatAutoCompleteConfig
         plugin = instance;
         config = instance.getConfig();
 
-      /*  try
+        try
         {
             JarFile jar = new JarFile( "plugins/ChatAutoComplete.jar" );
             JarEntry entry = jar.getJarEntry( "config1.yml" );
@@ -57,7 +57,8 @@ public class ChatAutoCompleteConfig
         }
 
         config.options().copyDefaults( true );
-        config.options().copyHeader( true );   */
+        config.options().copyHeader( true );
+
 
         saveConfig();
 
