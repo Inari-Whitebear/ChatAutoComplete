@@ -58,9 +58,9 @@ class MessageProcessor
         spoutListener = plugin.getSpoutListener();
         keepPrefix = config.getKeepPrefix();
         searchType = config.getSearchType();
-        if( searchType != "start" && searchType != "end" && searchType != "contains")
+        if( !searchType.equals( "start" ) && !searchType.equals( "end" ) && !searchType.equals( "contains" ) )
         {
-            plugin.consoleMsg("Invalid searchtype "+searchType+" defaulting to 'start'.");
+            plugin.consoleMsg( "Invalid searchtype " + searchType + " defaulting to 'start'." );
             searchType = "start";
         }
         ignoreSymbols = config.getIgnoreSymbols();
@@ -189,15 +189,18 @@ class MessageProcessor
 
     Player getPlayer( String subName )
     {
-        plugin.consoleMsg( "Searching for: " + subName + " (SearchMode="+searchType+")", true );
+        plugin.consoleMsg( "Searching for: " + subName + " (SearchMode=" + searchType + ")", true );
         if( searchType.equals( "start" ) ) return plugin.getServer().getPlayer( subName );
         else if( searchType.equals( "exact" ) ) return plugin.getServer().getPlayerExact( subName );
         else if( searchType.equals( "end" ) || searchType.equals( "contains" ) )
         {
             for( Player player : plugin.getServer().getOnlinePlayers() )
             {
-                if( searchType.equals( "end" ) && player.getName().toLowerCase().endsWith( subName.toLowerCase() ) ) return player;
-                else if( searchType.equals( "contains" ) && player.getName().toLowerCase().contains( subName.toLowerCase() ) ) return player;
+                if( searchType.equals( "end" ) && player.getName().toLowerCase().endsWith( subName.toLowerCase() ) )
+                    return player;
+                else if( searchType.equals( "contains" ) && player.getName()
+                                                                  .toLowerCase()
+                                                                  .contains( subName.toLowerCase() ) ) return player;
             }
         }
         return null;

@@ -20,14 +20,13 @@
 package de.neptune_whitebear.ChatAutoComplete;
 
 
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 
-import java.io.File;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.net.URL;
+import java.net.URLConnection;
+
 
 
 public class ChatAutoCompleteConfig
@@ -40,15 +39,12 @@ public class ChatAutoCompleteConfig
 
         try
         {
-            JarFile jar = new JarFile( "plugins/ChatAutoComplete.jar" );
-            JarEntry entry = jar.getJarEntry( "config1.yml" );
-            if( entry == null )
-            {
-                plugin.consoleMsg( "No default config found." );
-            }
 
+            URL url = plugin.getClass().getClassLoader().getResource( "config1.yml" );
+            URLConnection con = url.openConnection();
+            con.setUseCaches( false );
             YamlConfiguration yaml = new YamlConfiguration();
-            yaml.load( jar.getInputStream( entry ) );
+            yaml.load( con.getInputStream() );
             config.setDefaults( yaml );
         } catch( Exception ex )
         {
@@ -59,7 +55,6 @@ public class ChatAutoCompleteConfig
         config.options().copyDefaults( true );
         config.options().copyHeader( true );
 
-
         saveConfig();
 
     }
@@ -69,6 +64,7 @@ public class ChatAutoCompleteConfig
     {
         plugin.saveConfig();
     }
+
     void setDefault( FileConfiguration def, String name, Object value )
     {
         if( def.get( name ) == null ) def.set( name, value );

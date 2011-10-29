@@ -31,7 +31,7 @@ import org.getspout.spoutapi.sound.SoundEffect;
 import org.getspout.spoutapi.sound.SoundManager;
 
 import java.util.Collection;
-import java.util.Set;
+
 
 class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
 {

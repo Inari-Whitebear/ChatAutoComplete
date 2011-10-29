@@ -19,11 +19,10 @@
 
 package de.neptune_whitebear.ChatAutoComplete;
 
-import java.io.File;
+
 import java.util.logging.Logger;
 
 
-import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.Plugin;
@@ -74,15 +73,17 @@ public class ChatAutoComplete extends JavaPlugin
             Plugin essentialsBridge = pgnMng.getPlugin( "Permissions" );
             if( essentialsBridge != null && essentialsBridge.isEnabled() )
             {
-                if( essentialsBridge instanceof PermissionHandler){
-                try
+
+                if( essentialsBridge instanceof Permissions )
                 {
-                    permHandler = ( ( Permissions ) essentialsBridge ).getHandler();
-                    consoleMsg( "Using Essentials/PermissionsPrefix" );
-                } catch( NoClassDefFoundError exception )
-                {
-                    permHandler = null;
-                }
+                    try
+                    {
+                        permHandler = ( ( Permissions ) essentialsBridge ).getHandler();
+                        consoleMsg( "Using Essentials/PermissionsPrefix" );
+                    } catch( NoClassDefFoundError exception )
+                    {
+                        permHandler = null;
+                    }
                 }
             }
         }
@@ -107,7 +108,7 @@ public class ChatAutoComplete extends JavaPlugin
 
         }
 
-        ChatAutoCompletePlayerListener playerListener = new ChatAutoCompletePlayerListener( this, messageProcessor );
+        ChatAutoCompletePlayerListener playerListener = new ChatAutoCompletePlayerListener( messageProcessor );
 
         pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Low, this );
 

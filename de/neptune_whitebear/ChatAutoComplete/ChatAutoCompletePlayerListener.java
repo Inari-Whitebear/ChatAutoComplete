@@ -27,9 +27,8 @@ import org.bukkit.event.player.PlayerListener;
 class ChatAutoCompletePlayerListener extends PlayerListener
 {
 
-    public ChatAutoCompletePlayerListener( ChatAutoComplete cPlugin, MessageProcessor cMessageProcessor )
+    public ChatAutoCompletePlayerListener( MessageProcessor cMessageProcessor )
     {
-        ChatAutoComplete plugin = cPlugin;
         messageProcessor = cMessageProcessor;
 
     }
