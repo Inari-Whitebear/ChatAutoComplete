@@ -190,6 +190,9 @@ class MessageProcessor
     Player getPlayer( String subName )
     {
         plugin.consoleMsg( "Searching for: " + subName + " (SearchMode=" + searchType + ")", true );
+        Player exactPlayer;
+        exactPlayer = plugin.getServer().getPlayerExact( subName );
+        if( exactPlayer != null ) return exactPlayer;
         if( searchType.equals( "start" ) ) return plugin.getServer().getPlayer( subName );
         else if( searchType.equals( "exact" ) ) return plugin.getServer().getPlayerExact( subName );
         else if( searchType.equals( "end" ) || searchType.equals( "contains" ) )
