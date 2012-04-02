@@ -37,20 +37,7 @@ public class ChatAutoCompleteConfig
         plugin = instance;
         config = instance.getConfig();
 
-        try
-        {
 
-            URL url = plugin.getClass().getClassLoader().getResource( "config1.yml" );
-            URLConnection con = url.openConnection();
-            con.setUseCaches( false );
-            YamlConfiguration yaml = new YamlConfiguration();
-            yaml.load( con.getInputStream() );
-            config.setDefaults( yaml );
-        } catch( Exception ex )
-        {
-            plugin.consoleMsg( "ERROR; Unable to load default config file. =>" );
-            plugin.consoleMsg( ex.toString() );
-        }
 
         config.options().copyDefaults( true );
         config.options().copyHeader( true );

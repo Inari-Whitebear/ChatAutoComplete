@@ -20,19 +20,29 @@
 package de.neptune_whitebear.ChatAutoComplete;
 
 
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.event.player.PlayerListener;
+
+import java.util.Collection;
 
 
-class ChatAutoCompletePlayerListener extends PlayerListener
+class ChatAutoCompletePlayerListener implements Listener
 {
 
     public ChatAutoCompletePlayerListener( MessageProcessor cMessageProcessor )
     {
         messageProcessor = cMessageProcessor;
 
+
+
     }
 
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerChat( PlayerChatEvent event )
     {
 
@@ -45,6 +55,9 @@ class ChatAutoCompletePlayerListener extends PlayerListener
     }
 
 
+
+
     private final MessageProcessor messageProcessor;
+
 
 }

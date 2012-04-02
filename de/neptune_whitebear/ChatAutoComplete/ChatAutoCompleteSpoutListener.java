@@ -19,12 +19,13 @@
 
 package de.neptune_whitebear.ChatAutoComplete;
 
-
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.SpoutPlayer;
 import org.getspout.spoutapi.sound.SoundEffect;
@@ -32,12 +33,10 @@ import org.getspout.spoutapi.sound.SoundManager;
 
 import java.util.Collection;
 
-
-class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
+public class ChatAutoCompleteSpoutListener implements Listener
 {
 
-
-    public ChatAutoCompleteSpoutPlayerListener( ChatAutoComplete instance, boolean cUseSpout, ChatAutoCompleteConfig config )
+    public ChatAutoCompleteSpoutListener(ChatAutoComplete instance, boolean cUseSpout, ChatAutoCompleteConfig config)
     {
         plugin = instance;
         lastEvent = null;
@@ -50,7 +49,7 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
         if( spoutMaterial == null )
         {
             plugin.consoleMsg( "Spout Error // Material " + config.getSpoutNotificationMaterial()
-                                                                  .toUpperCase() + " not a valid material; Using default." );
+                    .toUpperCase() + " not a valid material; Using default." );
             spoutNotificationMaterial = Material.DIAMOND_BLOCK;
         } else
         {
@@ -62,7 +61,35 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
     }
 
 
-    public void onPlayerChat( PlayerChatEvent event )
+    public void passEvent( Event event, Collection<Player> notifyPlayers )
+    {
+        if( !useSpout ) return;
+        lastEvent = event;
+        lastPlayers = notifyPlayers;
+    }
+
+    void spoutNotifyPlayer( Player player )
+    {
+        SpoutPlayer spoutPlayer = SpoutManager.getPlayer(player);
+        if( spoutPlayer != null )
+        {
+            if( !spoutSound.endsWith( "NONE" ) )
+            {
+                SoundManager soundMng = SpoutManager.getSoundManager();
+                SoundEffect eff = SoundEffect.getSoundEffectFromName( "random." + spoutSound );
+                if( eff != null ) soundMng.playSoundEffect( spoutPlayer, eff, player.getLocation(), 20, 60 );
+                else plugin.consoleMsg( "Sound does not exist => SoundEff == NULL", true );
+            }
+            if( useNotification )
+            {
+
+                spoutPlayer.sendNotification( spoutNotificationTitle, spoutNotificationMessage, spoutNotificationMaterial );
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onSpoutPlayerChat( PlayerChatEvent event )
     {
         if( event != lastEvent ) return;
         if( event.isCancelled() )
@@ -84,32 +111,6 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
     }
 
 
-    void spoutNotifyPlayer( Player player )
-    {
-        SpoutPlayer spoutPlayer = SpoutManager.getPlayer( player );
-        if( spoutPlayer != null )
-        {
-            if( !spoutSound.endsWith( "NONE" ) )
-            {
-                SoundManager soundMng = SpoutManager.getSoundManager();
-                SoundEffect eff = SoundEffect.getSoundEffectFromName( "random." + spoutSound );
-                if( eff != null ) soundMng.playSoundEffect( spoutPlayer, eff, player.getLocation(), 20, 60 );
-                else plugin.consoleMsg( "Sound does not exist => SoundEff == NULL", true );
-            }
-            if( useNotification )
-            {
-
-                spoutPlayer.sendNotification( spoutNotificationTitle, spoutNotificationMessage, spoutNotificationMaterial );
-            }
-        }
-    }
-
-    public void passEvent( Event event, Collection<Player> notifyPlayers )
-    {
-        if( !useSpout ) return;
-        lastEvent = event;
-        lastPlayers = notifyPlayers;
-    }
 
     private final ChatAutoComplete plugin;
     private Event lastEvent;
@@ -121,5 +122,4 @@ class ChatAutoCompleteSpoutPlayerListener extends PlayerListener
     private final String spoutNotificationMessage;
     private final String spoutNotificationTitle;
     private final Material spoutNotificationMaterial;
-
 }

@@ -20,12 +20,15 @@
 
 package de.neptune_whitebear.ChatAutoComplete;
 
-import com.herocraftonline.dthielke.herochat.event.ChannelChatEvent;
+import com.dthielke.herochat.ChannelChatEvent;
 
-import org.bukkit.event.CustomEventListener;
+
+
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
-class HeroChatListener extends CustomEventListener
+class HeroChatListener implements Listener
 {
 
     public HeroChatListener( ChatAutoComplete instance, MessageProcessor cMessageProcessor )
@@ -34,24 +37,20 @@ class HeroChatListener extends CustomEventListener
         messageProcessor = cMessageProcessor;
     }
 
+    @EventHandler
     void onChannelChatEvent( ChannelChatEvent event )
     {
-        if( event.isCancelled() ) return;
-        if( !event.isSentByPlayer() ) return;
 
-        String[] process = messageProcessor.ProcessMessage( plugin.getServer()
-                                                                  .getPlayer( event.getSource() ), event.getMessage(), event
-                .getFormat(), event );
+        if( event.getBukkitEvent().isCancelled() ) return;
+        if( event.getSender().getPlayer() == null ) return;
+
+        String[] process = messageProcessor.ProcessMessage( event.getSender().getPlayer(), event.getBukkitEvent().getMessage(), event
+                .getBukkitEvent().getFormat(), event );
 
 
-        event.setMessage( process[0] );
-        event.setFormat( process[1] );
+        event.getBukkitEvent().setMessage( process[0] );
+        event.getBukkitEvent().setFormat( process[1] );
 
-    }
-
-    public void onCustomEvent( Event event )
-    {
-        if( event instanceof ChannelChatEvent ) onChannelChatEvent( ( ChannelChatEvent ) event );
     }
 
 

@@ -39,20 +39,12 @@ class MessageProcessor
         charPrefix = config.getChatPrefix().charAt( 0 );
         maxReplace = config.getMaxReplace();
         // Convert color code to ChatColor
-        try
-        {
-            atSignColor = ChatColor.getByCode( Integer.parseInt( config.getAtSignColor(), 16 ) );
-        } catch( NumberFormatException ex )
-        {
-            atSignColor = null;
-        }
-        try
-        {
-            nickColor = ChatColor.getByCode( Integer.parseInt( config.getNickColor(), 16 ) );
-        } catch( NumberFormatException ex )
-        {
-            nickColor = null;
-        }
+
+            atSignColor = ChatColor.getByChar(config.getAtSignColor());
+
+
+            nickColor = ChatColor.getByChar(  config.getNickColor());
+
 
         permHandler = cPermHandler;
         spoutListener = plugin.getSpoutListener();
@@ -225,7 +217,7 @@ class MessageProcessor
     private ChatColor atSignColor;
     private ChatColor nickColor;
     private final PermissionHandler permHandler;
-    private final ChatAutoCompleteSpoutPlayerListener spoutListener;
+    private final ChatAutoCompleteSpoutListener spoutListener;
     private final boolean keepPrefix;
     private String searchType;
     private final String ignoreSymbols;

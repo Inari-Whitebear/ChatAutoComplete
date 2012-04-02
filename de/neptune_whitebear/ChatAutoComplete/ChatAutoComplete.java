@@ -23,8 +23,7 @@ package de.neptune_whitebear.ChatAutoComplete;
 import java.util.logging.Logger;
 
 
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
+
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -94,7 +93,7 @@ public class ChatAutoComplete extends JavaPlugin
         {
             consoleMsg( "Using HeroChat: " + pgnMng.getPlugin( "HeroChat" ).getDescription().getFullName() );
             HeroChatListener heroChatListener = new HeroChatListener( this, messageProcessor );
-            pgnMng.registerEvent( Type.CUSTOM_EVENT, heroChatListener, Priority.Normal, this );
+            pgnMng.registerEvents( heroChatListener, this );
 
 
         }
@@ -110,7 +109,7 @@ public class ChatAutoComplete extends JavaPlugin
 
         ChatAutoCompletePlayerListener playerListener = new ChatAutoCompletePlayerListener( messageProcessor );
 
-        pgnMng.registerEvent( Type.PLAYER_CHAT, playerListener, Priority.Low, this );
+        pgnMng.registerEvents( playerListener, this );
 
 
         consoleMsg( "Enabled." );
@@ -132,8 +131,8 @@ public class ChatAutoComplete extends JavaPlugin
                                           .getPlugin( "Spout" )
                                           .getDescription()
                                           .getFullName() );
-        spoutListener = new ChatAutoCompleteSpoutPlayerListener( this, useSpout, this.getConfigInstance() );
-        this.getServer().getPluginManager().registerEvent( Type.PLAYER_CHAT, spoutListener, Priority.Monitor, this );
+        spoutListener = new ChatAutoCompleteSpoutListener( this, useSpout, this.getConfigInstance() );
+        this.getServer().getPluginManager().registerEvents( spoutListener,  this);
 
     }
 
@@ -147,7 +146,7 @@ public class ChatAutoComplete extends JavaPlugin
         return config;
     }
 
-    public ChatAutoCompleteSpoutPlayerListener getSpoutListener()
+    public ChatAutoCompleteSpoutListener getSpoutListener()
     {
         if( !useSpout ) return null;
         else return spoutListener;
@@ -159,7 +158,7 @@ public class ChatAutoComplete extends JavaPlugin
     private boolean debug = false;
 
     private ChatAutoCompleteConfig config;
-    private ChatAutoCompleteSpoutPlayerListener spoutListener;
+    private ChatAutoCompleteSpoutListener spoutListener;
 
     private PermissionHandler permHandler = null;
 
